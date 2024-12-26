@@ -1,42 +1,19 @@
 # -*- coding: utf-8 -*-
 import os
 import time
-import random
 import logging
 import platform
-import requests
-import html
-import io
-from datetime import datetime
 from configparser import ConfigParser
-from tabulate import tabulate
 from playwright.sync_api import sync_playwright, TimeoutError
-
-# 创建一个 StringIO 对象用于捕获日志
-log_stream = io.StringIO()
 
 # 创建日志记录器
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-
-# 创建控制台输出的处理器
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
-
-# 创建 log_stream 处理器
-stream_handler = logging.StreamHandler(log_stream)
-stream_handler.setLevel(logging.INFO)
-
-# 创建格式化器
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-
-# 为处理器设置格式化器
 console_handler.setFormatter(formatter)
-stream_handler.setFormatter(formatter)
-
-# 将处理器添加到日志记录器中
 logger.addHandler(console_handler)
-logger.addHandler(stream_handler)
 
 # 自动判断运行环境
 IS_GITHUB_ACTIONS = 'GITHUB_ACTIONS' in os.environ
@@ -58,15 +35,7 @@ def load_config():
 
 config = load_config()
 
-LIKE_PROBABILITY = float(config.get('settings', 'like_probability', fallback='0.02'))
-REPLY_PROBABILITY = float(config.get('settings', 'reply_probability', fallback='0'))
-COLLECT_PROBABILITY = float(config.get('settings', 'collect_probability', fallback='0.02'))
 HOME_URL = config.get('urls', 'home_url', fallback="https://linux.do/")
-CONNECT_URL = config.get('urls', 'connect_url', fallback="https://connect.linux.do/")
-USE_WXPUSHER = config.get('wxpusher', 'use_wxpusher', fallback='false').lower() == 'true'
-APP_TOKEN = config.get('wxpusher', 'app_token', fallback=None)
-TOPIC_ID = config.get('wxpusher', 'topic_id', fallback=None)
-MAX_TOPICS = int(config.get('settings', 'max_topics', fallback='10'))
 
 class LinuxDoBrowser:
     def __init__(self) -> None:
@@ -100,7 +69,8 @@ class LinuxDoBrowser:
                 logging.error(f"账号 {USERNAME} 登录失败，跳过该账号。")
                 continue
             
-            self.click_topic()  # 执行主题处理等操作
+            # 执行主题处理等操作（需要实现 click_topic 方法）
+            # self.click_topic()  
             
             # 登出以准备下一个账号（需要实现 logout 方法）
             self.logout()
@@ -134,7 +104,7 @@ class LinuxDoBrowser:
             logging.info(f"导航到 {HOME_URL}...")
             self.page.goto(HOME_URL)
             time.sleep(2)
-            
+
             # 点击用户菜单按钮以显示下拉菜单
             logging.info("尝试找到并点击用户菜单按钮...")
             user_menu_button = self.page.locator("#current-user .icon").first
