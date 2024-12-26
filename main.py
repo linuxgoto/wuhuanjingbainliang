@@ -9,10 +9,16 @@ from playwright.sync_api import sync_playwright, TimeoutError
 # 创建日志记录器
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
+# 创建控制台输出的处理器
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
+
+# 创建格式化器
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 console_handler.setFormatter(formatter)
+
+# 将处理器添加到日志记录器中
 logger.addHandler(console_handler)
 
 # 自动判断运行环境
@@ -126,5 +132,12 @@ class LinuxDoBrowser:
             logging.error(f"登出操作失败: {e}")
 
 if __name__ == "__main__":
-    ldb = LinuxDoBrowser()
-    ldb.run_for_accounts()
+    try:
+        ldb = LinuxDoBrowser()
+        ldb.run_for_accounts()
+    except Exception as e:
+        logging.error(f"运行过程中出错: {e}")
+    finally:
+        ldb.context.close()  # 确保上下文关闭
+        ldb.browser.close()   # 确保浏览器关闭
+        ldb.pw.stop()         # 停止 Playwright 实例
